@@ -1,0 +1,117 @@
+---
+title: "Tarea8_2_metagenomica"
+author: "Gabriela Martínez Andrade"
+date: "3/10/2020"
+output: html_document
+---
+
+
+```{r}
+library(phyloseq)
+library(vegan)
+library(ggplot2)
+```
+
+
+Primero tenemos que importar los datos, que se encuentran en la ruta ../data/taxonomy200.biom
+
+```{r}
+suelo <- import_biom("../data/taxonomy200.biom")
+suelo
+head(tax_table(suelo))
+sample_data(suelo)
+```
+
+
+En este paso se definen los nombres de los taxa
+
+```{r}
+colnames(tax_table(suelo)) <- c("Dominio","Phylum","Clase","Orden","Familia","Genero","Especies")
+```
+
+
+
+Creación de la tabla de binomiales
+
+```{r}
+nuevo_otu <- decostand(as.data.frame(otu_table(suelo)), method="pa")
+otu_nuevo <- otu_table(nuevo_otu, taxa_are_rows = TRUE)
+head(nuevo_otu)
+```
+
+
+Definir un nuevo objeto phyloseq, utilizando la tabla binomial
+
+```{r}
+nuevo_data <- sample_data(suelo)
+nuevo_taxa <- tax_table(suelo)
+```
+
+
+```{r}
+nuevo_suelo <- phyloseq(otu_nuevo, nuevo_taxa, nuevo_data)
+nuevo_suelo
+```
+
+
+Para realizar un plot_bar de la abundancia de OTUs por phylum en cada hospedero (host) y tratamiento (treatment) usando facet_wrap
+
+```{r}
+p = plot_bar(nuevo_suelo,"Host",fill = "Phylum") + geom_bar(aes(color=Phylum,fill=Phylum),stat = "identity",position = "stack")
+```
+
+
+```{r}
+p + facet_wrap("Treatment")
+```
+
+
+Hacer un anova de la riqueza observada ("Observed") por hospedero y tratamiento (two-way)
+
+```{r}
+tabla_riqueza <- cbind(nuevo_data, estimate_richness(nuevo_suelo, measures = "Observed"))
+tabla_riqueza <- data.frame(tabla_riqueza$phinchID, tabla_riqueza$Treatment, 
+                            tabla_riqueza$Host, tabla_riqueza$Observed)
+colnames(tabla_riqueza) <- c("ID", "Treatment", "Host", "Richness")
+head(tabla_riqueza)
+```
+
+
+```{r}
+anova <- aov(Richness~Treatment + Host, tabla_riqueza)
+anova
+summary(anova)
+```
+
+
+
+Desde una matriz de distancia de Raup-Crick ("raup"), realizar una ordinación NMDS, visualizándole por hospedero y tratamiento usando facet_wrap. El índice de similitud de Raup-Crick que provee información sobre el grado en que las comunidades son más diferentes o similares que lo esperado por azar.
+
+
+```{r}
+raup <- distance(suelo,method = "raup")
+raup
+```
+
+
+```{r}
+NMDS = ordinate(suelo,method = "NMDS", color="Host", shape="Treatment")
+NMDS
+```
+
+
+
+
+```{r}
+plot_ordination(suelo,NMDS,color="Host") + geom_point(size=3) + facet_wrap("Treatment") + theme_bw()
+```
+
+
+Por último hacer un test de adonis de la composición de la comunidad por hospedero y tratamiento
+
+```{r}
+adonis(raup~Host + Treatment, data=tabla_riqueza)
+```
+
+
+ 
