@@ -3,7 +3,7 @@
 # Gabriela Martínez Andrade, mayo 2020
 
 
-# Script para obtener el archivo .biom de 4 muestras de suelo rizosférico recolectados en sitios de bosque nativo (N) y mixto (M) de Quercus (Q) y de Juniperus. Cada muestra tenemos un archivo fastq con las secuencias forward (R1) y otro con las secuencias reverse (R2). Los datos son de ITS2 (hongos) generados por Illumina MiSeq
+# Script para obtener el archivo .biom de muestras de suelo rizosférico recolectados en sitios de bosque nativo (N) y mixto (M) de Quercus (Q) y de Juniperus. Cada muestra tenemos un archivo fastq con las secuencias forward (R1) y otro con las secuencias reverse (R2). Los datos son de ITS2 (hongos) generados por Illumina MiSeq
 
 
 # Pre-procesamiento de archivos FASTQ. En este primer paso se ensamblan los reads forward (R1) y reverse (R2), se eliminan los primers y secuencias cortas.
@@ -21,5 +21,4 @@ amptk taxonomy -i filter.final.txt -o taxonomy -f filter.filtered.otus.fa -m ../
 # Bajar el archivo taxonomy200.biom del cluster de CONABIO, en la computadora local.
 scp -P 45789 cirio@200.12.166.164:/persistence/cirio/metagenomica/taxonomy200.biom .
 
-
-Documenta tu análisis en el README, describiendo brevemente los resultados que obtuviste con el min_lenght de 200 bp a comparación con usar un min_lenght de 300 bp. Comenta cual es el mejor valor en ese caso y porque.
+# El archivo lo guardé en mi computatora local en la ruta: /Users/gaby/Desktop/BioinfinvRepro/Unidad8/metagenomica/data
